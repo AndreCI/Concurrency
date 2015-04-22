@@ -20,7 +20,12 @@ public class Grid extends Thread{
 		aliveSnakes.add(id);
 	}
 	public void deleteSnake(int id){
-		aliveSnakes.remove(id);
+		if(aliveSnakes.contains(id)){
+			aliveSnakes.remove(aliveSnakes.indexOf(id));
+			
+		}else{
+			throw new IllegalArgumentException();
+		}
 	}
 	
 	public int getSize(){

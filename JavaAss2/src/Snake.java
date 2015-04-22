@@ -1,7 +1,9 @@
 import java.util.LinkedList;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Snake extends Thread{
 	private final int id;
+	private final ReentrantLock lock = new ReentrantLock();
 	private enum directions{
 		N, S, E, O
 	}
@@ -17,8 +19,8 @@ public class Snake extends Thread{
 		world.addSnake(id);
 		this.size=size;
 		position = new LinkedList<Positions>();
-		for(int i=0; i<size; i++){
-			position.add(new Positions(id,i));
+		for(int i=0; i<size; i++){//choisir un départ aléatoire ; regarder si ya un snake deja ; si oui, recommencer
+			position.add(new Positions(id*3,i));
 		}System.out.println(position.size());
 	}
 	private void setNewDirection(){
@@ -81,14 +83,20 @@ public class Snake extends Thread{
 	
 				world.writeTab(position.get(0).x, position.get(0).y, -1);
 				if(world.getTab(nextPos.x, nextPos.y)!=-1){
-					System.out.println("it's dead : " + id);
+					//System.out.println("it's dead : " + id);
+				//	System.err.println(nextPos.x + " "+ nextPos.y);
 					world.deleteSnake(id);
 					this.join();
 				}
-				world.writeTab(position.get(size-1).x, position.get(size-1).y, id);
-				world.writeTab(nextPos.x, nextPos.y, 8);
+			lock.lock();
+			try{
+			world.writeTab(position.get(size-1).x, position.get(size-1).y, id);
+			world.writeTab(nextPos.x, nextPos.y, 8); //Should be id
 			position.remove(0);
 			position.add(nextPos);
+			}finally{
+				lock.unlock();
+			}
 	}
 	
 	@Override
