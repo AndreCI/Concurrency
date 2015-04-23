@@ -7,19 +7,23 @@ public class Snake extends Thread{
 	private enum directions{
 		N, S, E, O
 	}
+	private int lifeTime;
+	private int age;
 	private directions direction;
 	private Grid world;
 	private LinkedList<Positions> position;
 	private final int size;
 	
 	
-	Snake(int id, Grid world, int size){
+	Snake(int id, Grid world, int size, int lifeTime){
+		this.lifeTime = lifeTime;
+		age=0;
 		this.id=id;
 		this.world=world;
 		world.addSnake(id);
 		this.size=size;
 		position = new LinkedList<Positions>();
-		for(int i=0; i<size; i++){//choisir un départ aléatoire ; regarder si ya un snake deja ; si oui, recommencer
+		for(int i=0; i<size; i++){//TODO : choisir un départ aléatoire ; regarder si ya un snake deja ; si oui, recommencer
 			position.add(new Positions(id*3,i));
 		}System.out.println(position.size());
 	}
@@ -83,28 +87,32 @@ public class Snake extends Thread{
 	
 				world.writeTab(position.get(0).x, position.get(0).y, -1);
 				if(world.getTab(nextPos.x, nextPos.y)!=-1){
-					//System.out.println("it's dead : " + id);
-				//	System.err.println(nextPos.x + " "+ nextPos.y);
 					world.deleteSnake(id);
 					this.join();
+				}else{
+					lock.lock();
+					try{
+						world.writeTab(position.get(size-1).x, position.get(size-1).y, id);
+						world.writeTab(nextPos.x, nextPos.y, 8); //Should be id
+						world.addLog(nextPos.x, nextPos.y, id, System.currentTimeMillis());
+						position.remove(0);
+						position.add(nextPos);
+					}finally{
+						lock.unlock();
+					}
 				}
-			lock.lock();
-			try{
-			world.writeTab(position.get(size-1).x, position.get(size-1).y, id);
-			world.writeTab(nextPos.x, nextPos.y, 8); //Should be id
-			position.remove(0);
-			position.add(nextPos);
-			}finally{
-				lock.unlock();
-			}
 	}
 	
 	@Override
 	public void run(){
 		try {
 			while(true){
-			move();
-			Snake.sleep(300);
+				move();
+			if(age>=lifeTime){
+				this.join();
+			}
+			Snake.sleep(300); //TODO : 100ms
+			age++;
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
