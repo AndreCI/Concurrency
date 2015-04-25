@@ -1,8 +1,10 @@
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.Random;
 
 public class Snake extends Thread{
-	private final int id;
+    private final Random rand = new Random();
+    private final int id;
 	private final ReentrantLock lock = new ReentrantLock();
 	private enum directions{
 		N, S, E, O
@@ -15,7 +17,7 @@ public class Snake extends Thread{
 	private final int size;
 	
 	
-	Snake(int id, Grid world, int size, int lifeTime){
+	public Snake(int id, Grid world, int size, int lifeTime){
 		this.lifeTime = lifeTime;
 		age=0;
 		this.id=id;
@@ -23,9 +25,15 @@ public class Snake extends Thread{
 		world.addSnake(id);
 		this.size=size;
 		position = new LinkedList<Positions>();
-		for(int i=0; i<size; i++){//TODO : choisir un départ aléatoire ; regarder si ya un snake deja ; si oui, recommencer
+        for(int i=0; i<size; i++){
+            int x = rand.nextInt(size);
+            Positions p = new Positions(x, i);
+            while(position.contains(p)){
+                p = new Positions(rand.nextInt(size), i);
+            }
 			position.add(new Positions(id*3,i));
-		}System.out.println(position.size());
+		}
+        System.out.println(position.size());
 	}
 	private void setNewDirection(){
 		directions forbidenOne;
@@ -121,11 +129,33 @@ public class Snake extends Thread{
 	public class Positions{
 		public int x;
 		public int y;
-		Positions(int x, int y){
+		public Positions(int x, int y){
 			this.x=x;
 			this.y=y;
 		}
+
+        @Override
+        public boolean equals(Object o){
+            if(o == this) {
+                return true;
+            }
+            if(!(o instanceof Positions)){
+                return false;
+            }
+            Positions p = (Positions)o;
+            return (p.x == this.x) && (p.y == this.y);
+        }
+
+        @Override
+        public  int hashCode(){
+         int hash = 0;
+         hash = 23 * hash + this.x;
+         hash = 23 * hash + this.y;
+         return hash;
+        }
 	}
+
+
 }
 
 
