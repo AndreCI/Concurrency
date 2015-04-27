@@ -78,6 +78,10 @@ public class Grid extends Thread{
 				LinkedList<Positions> logSnake = log.get(snakes.get(0));
 				LinkedList<Long> tsSnake = ts.get(snakes.get(0));
 				System.out.println("Snake "+id+" died at : " +logSnake.getLast().toString() + " at " + tsSnake.getLast());
+				while(logSnake.size()>=2){
+					Positions last = logSnake.getLast();
+					System.out.println("Snake "+id+" moved from : "+logSnake.removeLast().toString()+" to :" +last.toString() + " at " + tsSnake.removeLast());		
+				}
 				snakes.remove();
 			}
 			
