@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH --workdir /home/username/test
+#SBATCH --nodes 1
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 1
+#SBATCH --mem 4096
+#SBATCH --time 12:30:00
+#SBATCH --partition gpu
+#SBATCH --qos gpu
+
+echo STARTING AT `date`
+
+/home/username/test/test
+
+echo FINISHED at `date`
