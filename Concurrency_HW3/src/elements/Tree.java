@@ -47,7 +47,6 @@ public class Tree {
 			}if(x.right!=null){
 				x.right.lock.lock();
 			}
-			toPrintf(3);
 			x.lock.unlock();
 			if(k<x.value){		
 				if(x.right!=null){
@@ -90,66 +89,37 @@ public class Tree {
 		}
 		return x;
 	}
-	public Node successor(Node x){
-		if(x.right!=null){
-			return minimum(x.right);
-		}else{
-			Node y=x.parent;
-			while(y!=null && x==y.right){
-				x=y;
-				y=y.parent;
-			}
-			return y;
-		}
-	}
-	public Node predecessor(Node x){
-		if(x.left!=null){
-			return maximum(x.left);
-		}else{
-			Node y = x.parent;
-			while(y!=null && x==y.left){
-				x=y;
-				y=y.parent;
-			}
-			return y;
-		}
-		}
 	public void insert(int x){
 		Node z = new Node(x);
 		Node y=null;
 		Node k=root;
-		//k.lock.lock();
-		try{
+		k.lock.lock();
 		while(k!=null){
-			//k.left.lock.lock();
-			//k.right.lock.lock();
-			try{
+			if(k.left!=null){
+				k.left.lock.lock();
+			}if(k.right!=null){
+				k.right.lock.lock();
+			}
+			k.lock.unlock();
 				y=k;
 				if(z.value<k.value){
-				//	k.right.lock.unlock();
+					if(k.right!=null){
+						k.right.lock.unlock();
+					}
 					k=k.left;
 				}else{
-				//	k.left.lock.unlock();
+					if(k.left!=null){
+						k.left.lock.unlock();
+					}
 					k=k.right;
 				}
-			}finally{
-		//		k.parent.lock.unlock();
 			}
-		}
-		}finally{
-	//		k.lock.unlock();
-		}
-	//	y.lock.lock();
-		try{
 			z.parent=y;
 			if(z.value<y.value){
 				y.left=z;
 			}else{
 				y.right=z;
 			}
-		}finally{
-	//		y.lock.unlock();
-		}
 	}
 	
 	/**
@@ -157,7 +127,7 @@ public class Tree {
 	 * @param u a : Node
 	 * @param v a : Node
 	 */
-	public void transplant(Node u, Node v){
+	private void transplant(Node u, Node v){
 		if(u.parent==null){
 			root=v;
 		}else if(u.parent.left==u){
@@ -172,29 +142,31 @@ public class Tree {
 	
 	public void delete(int x){
 		Node z = search(root, x);
-//		z.lock.lock();
-		try{
+		z.lock.lock();
 		if(z.left==null){
+			z.parent.lock.lock();
 			if(z.right!=null){
-	//			z.right.lock.lock();
-				try{
-				transplant(z, z.right);	
-				}finally{
-		//		z.right.lock.unlock();
-				}
-			}else{
-				transplant(z, z.right);		
+				z.right.lock.lock();
 			}
 			transplant(z, z.right);	
+			z.parent.lock.unlock();
+			if(z.right!=null){
+				z.right.lock.unlock();
+			}
+			
 		}else if(z.right==null){
-			//z.left.lock.lock();
-			try{
+			z.parent.lock.lock();
+			if(z.left!=null){
+				z.left.lock.lock();
+			}
 			transplant(z, z.left);
-			}finally{
-		//	z.left.lock.unlock();
+			z.parent.lock.unlock();
+			if(z.left!=null){
+				z.left.lock.unlock();
 			}
 		}else{
 			Node y = minimum(z.right);
+			y.lock.lock();
 			if(y.parent!=z){
 				transplant(y, y.right);
 				y.right=z.right;
@@ -203,9 +175,7 @@ public class Tree {
 			transplant(z, y);
 			y.left=z.left;
 			y.left.parent=y;
+			y.lock.unlock();
 		}
-	}finally{
-		//z.lock.unlock();
-	}
 	}
 }

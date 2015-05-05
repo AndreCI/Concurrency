@@ -20,5 +20,4 @@ public class Node {
 		if(value==-1){return "";}
 		else{return Integer.toString(value)+(lock.isLocked()?"[L]":"[ ]");}
 	}
-
 }
