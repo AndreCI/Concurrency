@@ -1,25 +1,68 @@
 package elements;
 
+import java.util.LinkedList;
+
 public class Tree {
 	public Node root;
 	public Tree(Node root){
 		this.root=root;
 	}
-	public Node search(Node x, int k){
-		if(x==null || k==x.value){
-			if(x!=null){
-				x.lock.unlock();
+	public void toPrintf(int level){
+		LinkedList<Node> thislevel = new LinkedList<Node>();
+		LinkedList<Node> nextlevel = new LinkedList<Node>();
+		thislevel.add(root);
+		do{
+			nextlevel.clear();
+			for(int i=0;i<level;i++){
+				System.out.print("     ");
 			}
-			return x;
-		}else{
-			x.lock.lock();
-			x.parent.lock.unlock();
-			if(k<x.value){
-				return search(x.left,k);
+		while(!thislevel.isEmpty()){
+			Node courrant = thislevel.remove();
+			System.out.print(courrant.value());
+			if(courrant.value!=-1 && courrant.left!=null){
+			nextlevel.add(courrant.left);
+			}else if(courrant.value!=-1 && courrant.left==null){
+				nextlevel.add(new Node(-1));
+			}
+			
+			if(courrant.value!=-1 && courrant.right!=null){
+			nextlevel.add(courrant.right);
+			}else if(courrant.value!=-1 && courrant.right==null){
+				nextlevel.add(new Node(-1));
+			}
+			System.out.print("       ");
+		}
+		level--;
+		System.out.println();
+		System.out.println();
+		thislevel.addAll(nextlevel);
+		}while(!nextlevel.isEmpty());
+	}
+	public Node search(Node x, int k){
+		x.lock.lock();
+		while(x!=null && k!= x.value){
+
+			if(x.left!=null){
+				x.left.lock.lock();
+			}if(x.right!=null){
+				x.right.lock.lock();
+			}
+			toPrintf(3);
+			x.lock.unlock();
+			if(k<x.value){		
+				if(x.right!=null){
+				x.right.lock.unlock();
+				}
+				x=x.left;
 			}else{
-				return search(x.right,k);
+				if(x.left!=null){
+					x.left.lock.unlock();
+				}
+				x=x.right;
 			}
 		}
+		x.lock.unlock();
+		return x;
 	}
 	public Node minimum(Node x){
 		x.lock.lock();
@@ -75,28 +118,28 @@ public class Tree {
 		Node z = new Node(x);
 		Node y=null;
 		Node k=root;
-		k.lock.lock();
+		//k.lock.lock();
 		try{
 		while(k!=null){
-			k.left.lock.lock();
-			k.right.lock.lock();
+			//k.left.lock.lock();
+			//k.right.lock.lock();
 			try{
 				y=k;
 				if(z.value<k.value){
-					k.right.lock.unlock();
+				//	k.right.lock.unlock();
 					k=k.left;
 				}else{
-					k.left.lock.unlock();
+				//	k.left.lock.unlock();
 					k=k.right;
 				}
 			}finally{
-				k.parent.lock.unlock();
+		//		k.parent.lock.unlock();
 			}
 		}
 		}finally{
-			k.lock.unlock();
+	//		k.lock.unlock();
 		}
-		y.lock.lock();
+	//	y.lock.lock();
 		try{
 			z.parent=y;
 			if(z.value<y.value){
@@ -105,7 +148,7 @@ public class Tree {
 				y.right=z;
 			}
 		}finally{
-			y.lock.unlock();
+	//		y.lock.unlock();
 		}
 	}
 	
@@ -128,28 +171,27 @@ public class Tree {
 	}
 	
 	public void delete(int x){
-		root.lock.lock();
 		Node z = search(root, x);
-		z.lock.lock();
+//		z.lock.lock();
 		try{
 		if(z.left==null){
 			if(z.right!=null){
-				z.right.lock.lock();
+	//			z.right.lock.lock();
 				try{
 				transplant(z, z.right);	
 				}finally{
-				z.right.lock.unlock();
+		//		z.right.lock.unlock();
 				}
 			}else{
 				transplant(z, z.right);		
 			}
 			transplant(z, z.right);	
 		}else if(z.right==null){
-			z.left.lock.lock();
+			//z.left.lock.lock();
 			try{
 			transplant(z, z.left);
 			}finally{
-			z.left.lock.unlock();
+		//	z.left.lock.unlock();
 			}
 		}else{
 			Node y = minimum(z.right);
@@ -163,7 +205,7 @@ public class Tree {
 			y.left.parent=y;
 		}
 	}finally{
-		z.lock.unlock();
+		//z.lock.unlock();
 	}
 	}
 }

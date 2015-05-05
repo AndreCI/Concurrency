@@ -11,7 +11,7 @@ public class Node {
 	
 	public Node(int value, Node left, Node right){
 		this.value=value;
-		this.left=left;
+		this.left=left; 
 		this.right=right;
 		this.lock=new ReentrantLock();
 	}
@@ -20,8 +20,12 @@ public class Node {
 		this.right=null;
 		this.parent=null;
 		this.value=value;
+		this.lock=new ReentrantLock();
 	}
-	
+	public String value(){
+		if(value==-1){return "";}
+		else{return Integer.toString(value)+(lock.isLocked()?"[L]":"[ ]");}
+	}
 	public void setLeft(Node left){
 		this.left=left;
 	}
