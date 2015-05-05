@@ -13,10 +13,12 @@ public class Launch {
 		T.insert(1);
 		T.insert(9);
 		T.insert(11);
-		T.toPrintf(3);
+
 
 		System.out.println();
-		T.search(x1, 9);
+		T.delete(8);
+		
+		T.toPrintf(3);
 	}
 
 }
