@@ -2,9 +2,9 @@ package elements;
 
 import java.util.LinkedList;
 
-public class Tree {
+public class BinarySearchTree {
 	public Node root;
-	public Tree(Node root){
+	public BinarySearchTree(Node root){
 		this.root=root;
 	}
 	public void toPrintf(int level){
